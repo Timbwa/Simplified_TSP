@@ -1,6 +1,8 @@
 # This implementation is specific for undirected graphs
 # All points in the map will be nodes in my map
-class Node:
+class Node(object):
+    rec_count = 0  # to prevent infinite recursion of neighbors
+
     def __init__(self, name, x_coordinate, y_coordinate, obstacle_flag=False):
         self.name = name  # possible values should only be ' ', 'A-Z', '*'
         self.coordinates = (x_coordinate, y_coordinate)  # this will uniquely identify the node
@@ -16,6 +18,19 @@ class Node:
         if self.name == '*':
             self.obstacle = True
 
+    def __str__(self):
+        # only print immediate neighbors
+        if self.rec_count == 1:
+            self.rec_count = 0
+            return "\'" + self.name + "\'"
+        else:
+            return 'name: ' + "\'" + self.name + "\'" + '\n' + 'coordinates: ' + str(self.coordinates) + '\nObstacle: ' + str(self.obstacle) \
+               + '\nneighbors: ' + str(self.neighbors) + '\n'
+
+    def __repr__(self):
+        self.rec_count += 1
+        return str(self)
+
 
 # Vertices will be nodes of interest. That is, blanks, and Vertices (' ', 'A-Z')
 class Vertex(Node):
@@ -25,19 +40,15 @@ class Vertex(Node):
         self.h_cost = None  # the cost given by the heuristic function
         self.previous_vertex = None
 
-    def __str__(self):
-        return self.name + '\n' + str(self.coordinates) + '\nObstacle: ' + str(self.obstacle) \
-               + '\nneighbors: ' + str(self.neighbors) + '\n'
 
-
-class Graph:
+class Graph(object):
     __vertices = {}  # keep a list of __vertices with their neighbors. Key is vertex coordinates, value is the vertex
     # object
 
-    def add_vertex(self, vertex):
+    def add_vertex(self, v):
         # check if the vertex is a Vertex object and if it's not in the __vertices dict
-        if isinstance(vertex, Vertex) and (vertex.coordinates not in self.__vertices):
-            self.__vertices[vertex.coordinates] = vertex
+        if isinstance(v, Vertex) and (v.coordinates not in self.__vertices):
+            self.__vertices[v.coordinates] = v
             return True  # if successful return true
         print("Vertex with same coordinates exists or the object passed is not instance of Vertex class !")
         return False  # if unsuccessful return false
@@ -50,8 +61,10 @@ class Graph:
         return False
 
     def print_graph(self):
-        for coordinate, vertex in self.__vertices.items():
-            print(vertex)
+        # v = self.__vertices[(3, 7)]
+        # print(v)
+        for c, v in self.__vertices.items():
+             print(v)
 
     def get_vertices(self):
         return self.__vertices
@@ -105,9 +118,16 @@ def map_to_graph(graph, text_map):
 if __name__ == "__main__":
     # represent map / puzzle as 2D array
     map_obj = Map("map.txt")
-    print(map_obj.get_map())
+    # print(map_obj.get_map())
+    v1 = Vertex("a", 2, 3, False)
+    v2 = Vertex("b", 0, 0, False)
+    v3 = Vertex("c", 2, 5, True)
+
+    v1.neighbors[v2.coordinates] = v2
+    v1.neighbors[v3.coordinates] = v3
 
     my_graph = Graph()
     map_to_graph(my_graph, map_obj)
     my_graph.print_graph()
+    #print(v1)
     # print(my_graph.get_vertices())
