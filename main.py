@@ -1,3 +1,6 @@
+import os.path
+from os import path
+
 # This implementation is specific for undirected graphs
 # All points in the map will be nodes in my map
 class Node(object):
@@ -82,10 +85,17 @@ class Map:
     def get_map(self):
         return self.__map
 
+    def print_map(self):
+        for index, el in enumerate(self.__map):
+            print(el)
+
     def __read_map(self, file_name):
-        with open(file_name, 'r') as f:
-            for line in f:
-                self.__map.append([el for index, el in enumerate(line.rstrip('\n'))])
+        if path.exists(file_name):
+            with open(file_name, 'r') as f:
+                for line in f:
+                    self.__map.append([el for index, el in enumerate(line.rstrip('\n'))])
+        else:
+            print("Error:" + ' ' + file_name + ' ' + 'doesn\'t exist')
 
 
 def map_to_graph(graph, text_map):
@@ -111,23 +121,47 @@ def map_to_graph(graph, text_map):
                 if i != 9:
                     graph.add_edge(graph.get_vertices()[(i, j)], graph.get_vertices()[(i + 1, j)])
         return True
-    print("Check your paramters !")
+    print("Check your parameters !")
     return False
 
 
+def display_menu():
+    msg = "Welcome, pick an option:"
+    prompts = {1: "Construct a Shortest Path Graph",
+               2: "Solve TSP using BFS and UCS",
+               3: "Exit"}
+    print(msg)
+    for key, value in enumerate(prompts):
+        print(str(value) + '. ' + prompts[value])
+    option = int(input("Choice:"))
+    return option
+
+
 if __name__ == "__main__":
-    # represent map / puzzle as 2D array
+    # Error messages
+    graph_error_msg = "Shortest Path Graph isn't constructed yet...\n"
+    prompt_error_msg = "Choose a number on the list\n"
+
+    # print menu
+    choice = display_menu()
+
+    # create map from file
     map_obj = Map("map.txt")
-    # print(map_obj.get_map())
-    v1 = Vertex("a", 2, 3, False)
-    v2 = Vertex("b", 0, 0, False)
-    v3 = Vertex("c", 2, 5, True)
 
-    v1.neighbors[v2.coordinates] = v2
-    v1.neighbors[v3.coordinates] = v3
+    # create graph representative of the whole map/puzzle
+    map_graph = Graph()
 
-    my_graph = Graph()
-    map_to_graph(my_graph, map_obj)
-    my_graph.print_graph()
-    #print(v1)
-    # print(my_graph.get_vertices())
+    # keep diplaying menu waiting for input
+    while choice != 3:
+        if choice == 1:
+            # TO-DO
+            print(map_obj.print_map())
+        elif choice == 2:
+            # TO-DO
+            print("TO-DO")
+        elif choice == 3:
+            print("Bye...")
+            break
+        else:
+            print("Error: " + prompt_error_msg)
+        choice = display_menu()
